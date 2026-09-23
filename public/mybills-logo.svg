@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title desc">
+<title>MyBills logo</title><desc>Orange rounded square with a white stack of coins and MyBills wordmark.</desc>
+<defs><linearGradient id="bg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ff7b2f"/><stop offset="1" stop-color="#ff5b22"/></linearGradient></defs>
+<rect width="512" height="512" rx="92" fill="url(#bg)"/>
+<g fill="#fff">
+  <ellipse cx="300" cy="143" rx="78" ry="29"/>
+  <path d="M222 143v36c0 16 35 29 78 29s78-13 78-29v-36c0 16-35 29-78 29s-78-13-78-29z"/>
+  <ellipse cx="185" cy="207" rx="78" ry="29"/>
+  <path d="M107 207v36c0 16 35 29 78 29s78-13 78-29v-36c0 16-35 29-78 29s-78-13-78-29z"/>
+  <ellipse cx="300" cy="207" rx="78" ry="29"/>
+  <path d="M222 207v36c0 16 35 29 78 29s78-13 78-29v-36c0 16-35 29-78 29s-78-13-78-29z"/>
+  <ellipse cx="185" cy="271" rx="78" ry="29"/>
+  <path d="M107 271v36c0 16 35 29 78 29s78-13 78-29v-36c0 16-35 29-78 29s-78-13-78-29z"/>
+  <ellipse cx="300" cy="271" rx="78" ry="29"/>
+  <path d="M222 271v36c0 16 35 29 78 29s78-13 78-29v-36c0 16-35 29-78 29s-78-13-78-29z"/>
+  <ellipse cx="185" cy="335" rx="78" ry="29"/>
+  <path d="M107 335v26c0 16 35 29 78 29s78-13 78-29v-26c0 16-35 29-78 29s-78-13-78-29z"/>
+</g>
+<text x="256" y="448" text-anchor="middle" fill="#fff" font-family="Arial,Helvetica,sans-serif" font-size="62" font-weight="700" letter-spacing="-3">MyBills</text>
+</svg>

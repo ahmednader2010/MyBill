@@ -1,1 +1,1 @@
-{"name":"MyBill","short_name":"MyBill","start_url":"/","display":"standalone","background_color":"#f8fbf9","theme_color":"#16845b","description":"Bills, cycles, pauses, and reminders in one place."}
+{"name":"MyBills","short_name":"MyBills","start_url":"/","display":"standalone","background_color":"#f8fbf9","theme_color":"#ff6b2d","description":"Bills, cycles, pauses, and reminders in one place.","icons":[{"src":"/mybills-logo.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]}

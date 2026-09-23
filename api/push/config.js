@@ -1,2 +1,2 @@
 export const access="user";export const methods=["GET"];
-export default async function(req,res){res.json({appId:process.env.ONESIGNAL_APP_ID||null});}
+const PUBLIC_ONESIGNAL_APP_ID="66d428ca-8012-4055-b30e-317cf4a1c278";export default async function(req,res){res.json({appId:process.env.ONESIGNAL_APP_ID||PUBLIC_ONESIGNAL_APP_ID});}
