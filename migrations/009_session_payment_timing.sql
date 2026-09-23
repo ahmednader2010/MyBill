@@ -1,0 +1,1 @@
+ALTER TABLE bills ADD COLUMN IF NOT EXISTS session_payment_timing TEXT DEFAULT 'last_session';

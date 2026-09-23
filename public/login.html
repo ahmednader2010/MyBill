@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Sign in — MyBill</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#17211b;--muted:#66736c;--line:#dfe8e2;--accent:#16845b;--accent2:#0d6f4b;--soft:#eaf7f0;--paper:#f8fbf9}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;font-family:"DM Sans",system-ui,sans-serif;color:var(--ink);background:radial-gradient(circle at 15% 10%,#dff5e9 0,transparent 34%),radial-gradient(circle at 90% 85%,#e8f3ed 0,transparent 35%),linear-gradient(135deg,#f7fbf8,#eef6f1);display:flex;align-items:center;justify-content:center;padding:24px;overflow:hidden}
+.shell{width:min(100%,980px);min-height:620px;background:rgba(255,255,255,.78);border:1px solid rgba(223,232,226,.9);border-radius:32px;box-shadow:0 30px 80px rgba(26,61,43,.12);display:grid;grid-template-columns:1.05fr .95fr;overflow:hidden;backdrop-filter:blur(18px)}
+.hero{position:relative;padding:54px;display:flex;flex-direction:column;justify-content:space-between;background:linear-gradient(145deg,#0d6f4b 0%,#16845b 58%,#28a875 100%);color:white;overflow:hidden}
+.hero:before,.hero:after{content:"";position:absolute;border-radius:999px;background:rgba(255,255,255,.1)}
+.hero:before{width:310px;height:310px;right:-130px;top:-100px}.hero:after{width:260px;height:260px;left:-150px;bottom:-120px}
+.brand{position:relative;z-index:1;font-family:Manrope,sans-serif;font-size:28px;font-weight:800;letter-spacing:-.04em}.brand span{opacity:.72}
+.hero-content{position:relative;z-index:1;max-width:430px}.eyebrow{font-size:12px;text-transform:uppercase;letter-spacing:.16em;font-weight:700;opacity:.72;margin-bottom:16px}.hero h1{font-family:Manrope,sans-serif;font-size:clamp(36px,4vw,58px);line-height:1.02;letter-spacing:-.055em;margin:0 0 20px}.hero p{font-size:17px;line-height:1.65;color:rgba(255,255,255,.82);margin:0}.features{position:relative;z-index:1;display:flex;flex-wrap:wrap;gap:9px}.feature{font-size:12px;font-weight:600;padding:9px 12px;border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.1);border-radius:999px}
+.panel{padding:54px 52px;display:flex;align-items:center}.form-wrap{width:100%;max-width:390px;margin:auto}.welcome{font-family:Manrope,sans-serif;font-size:32px;letter-spacing:-.04em;margin:0 0 8px}.sub{color:var(--muted);line-height:1.55;margin:0 0 30px}.label{display:block;font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:#536159;margin-bottom:8px}.input{width:100%;height:52px;border:1px solid var(--line);border-radius:14px;padding:0 15px;font:inherit;color:var(--ink);background:white;outline:none;transition:.2s}.input:focus{border-color:#55ad86;box-shadow:0 0 0 4px rgba(22,132,91,.1)}.btn{width:100%;height:52px;border:0;border-radius:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:white;font:600 15px "DM Sans",sans-serif;cursor:pointer;box-shadow:0 10px 22px rgba(22,132,91,.2);transition:transform .15s,box-shadow .15s}.btn:hover{transform:translateY(-1px);box-shadow:0 13px 26px rgba(22,132,91,.25)}.btn:disabled{opacity:.65;cursor:wait;transform:none}.secondary{background:#f4f7f5;color:#445149;box-shadow:none}.secondary:hover{box-shadow:none}.hint{margin-top:18px;padding:13px 14px;border-radius:13px;background:var(--soft);color:#4e6258;font-size:13px;line-height:1.5}.msg{min-height:20px;font-size:13px;margin-top:14px;color:#b13b3b}.secure{display:flex;align-items:center;gap:8px;color:#829087;font-size:12px;margin-top:24px}.dot{width:7px;height:7px;border-radius:50%;background:#35a979}
+@media(max-width:760px){body{padding:0}.shell{min-height:100vh;border:0;border-radius:0;display:block;background:white}.hero{min-height:330px;padding:30px 26px 28px}.hero h1{font-size:40px}.hero p{font-size:15px}.features{display:none}.panel{padding:36px 26px}.welcome{font-size:29px}}
+</style>
+</head>
+<body>
+<div class="shell">
+<section class="hero">
+  <div class="brand">My<span>Bill</span></div>
+  <div class="hero-content">
+    <div class="eyebrow">Your money calendar</div>
+    <h1>Stay ahead of every bill.</h1>
+    <p>Keep payments, due dates, categories, and reminders together in one calm, simple place.</p>
+  </div>
+  <div class="features"><span class="feature">Bills & cycles</span><span class="feature">Smart categories</span><span class="feature">24-hour reminders</span></div>
+</section>
+<section class="panel">
+  <div class="form-wrap">
+    <div class="eyebrow" style="color:var(--accent);font-size:11px;margin-bottom:10px">Welcome back</div>
+    <h2 class="welcome">Sign in to MyBill</h2>
+    <p class="sub">Enter your email and we’ll send you a secure one-time code.</p>
+    <div id="step1">
+      <label class="label" for="email">Email address</label>
+      <input id="email" class="input" type="email" autocomplete="email" placeholder="you@example.com">
+      <button id="send" class="btn" style="margin-top:14px">Email me a code</button>
+    </div>
+    <div id="step2" hidden>
+      <label class="label" for="code">6-digit code</label>
+      <input id="code" class="input" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="000000">
+      <button id="verify" class="btn" style="margin-top:14px">Sign in securely</button>
+      <button id="back" class="btn secondary" style="margin-top:10px">Use another email</button>
+      <div class="hint">Check your inbox for the MyBill sign-in code. If you don’t see it, check your spam or promotions folder.</div>
+    </div>
+    <p id="msg" class="msg" aria-live="polite"></p>
+    <div class="secure"><span class="dot"></span>Passwordless sign-in · no password to remember</div>
+  </div>
+</section>
+</div>
+<script>
+const $=id=>document.getElementById(id),next=new URLSearchParams(location.search).get('next');let email='';
+$('send').onclick=async()=>{email=$('email').value.trim();if(!email){$('msg').textContent='Please enter your email address.';return}$('send').disabled=true;$('msg').textContent='';try{await hatchable.auth.startLogin({email});$('step1').hidden=true;$('step2').hidden=false;$('code').focus();$('msg').textContent='Check your inbox for your sign-in code.';$('msg').style.color='#16845b'}catch(e){$('msg').textContent=e.message||'Could not send code.';$('msg').style.color='#b13b3b'}$('send').disabled=false};
+$('verify').onclick=async()=>{const code=$('code').value.trim();if(!code){$('msg').textContent='Enter the 6-digit code.';return}$('verify').disabled=true;$('msg').textContent='';try{await hatchable.auth.verifyCode({email,code});location.href=(next&&next.startsWith('/')?next:'/')}catch(e){$('msg').textContent=e.message||'Invalid code.';$('msg').style.color='#b13b3b'}$('verify').disabled=false};
+$('back').onclick=()=>{$('step2').hidden=true;$('step1').hidden=false;$('msg').textContent='';$('msg').style.color='#b13b3b';$('email').focus()};
+$('email').addEventListener('keydown',e=>{if(e.key==='Enter')$('send').click()});$('code').addEventListener('keydown',e=>{if(e.key==='Enter')$('verify').click()});
+</script>
+</body>
+</html>

@@ -1,0 +1,6 @@
+CREATE TABLE IF NOT EXISTS bill_category_settings (
+  user_id TEXT PRIMARY KEY,
+  defaults_seeded BOOLEAN NOT NULL DEFAULT false,
+  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW(),
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);

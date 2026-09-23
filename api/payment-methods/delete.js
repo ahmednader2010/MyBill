@@ -1,0 +1,3 @@
+import {db} from "hatchable";
+export const access="user"; export const methods=["DELETE"];
+export default async function(req,res){const id=req.body?.id;if(!id)return res.status(400).json({error:"Payment method id is required."});const c=(await db.query("SELECT id FROM bill_payment_methods WHERE id=$1 AND user_id=$2",[id,req.user.id])).rows[0];if(!c)return res.status(404).json({error:"Payment method not found."});await db.query("UPDATE bills SET payment_method_id=NULL,payment_method_name=NULL,payment_card_last4=NULL WHERE user_id=$1 AND payment_method_id=$2",[req.user.id,id]);await db.query("DELETE FROM bill_payment_methods WHERE id=$1 AND user_id=$2",[id,req.user.id]);res.json({ok:true});}

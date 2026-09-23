@@ -1,0 +1,15 @@
+import {db,scheduler} from "hatchable";
+export const access="user"; export const methods=["POST"];
+const allowed=new Set(["monthly","quarterly","yearly","weekly","custom","one_time","session_based"]);
+const validDate=s=>/^\d{4}-\d{2}-\d{2}$/.test(String(s||""));
+const reminderAt=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(Date.UTC(y,m-1,d,9)-86400000)};
+export default async function(req,res){
+ const b=req.body||{}; const interval=Number(b.interval_days);
+ if(!b.name||!allowed.has(b.frequency)||!validDate(b.due_date))return res.status(400).json({error:"Name, frequency and a valid due date are required."});
+ if(b.end_date&&(!validDate(b.end_date)||b.end_date<b.due_date))return res.status(400).json({error:"End date must be empty or on/after the due date."});
+ if(b.frequency==="custom"&&(!Number.isInteger(interval)||interval<1||interval>3650))return res.status(400).json({error:"Custom interval must be between 1 and 3650 days."});
+ const {rows}=await db.query("INSERT INTO bills (user_id,reminder_email,name,amount,currency,category,frequency,interval_days,due_date,end_date,due_day,reminder_enabled,notes,payment_method_id,payment_method_name,payment_card_last4,subscription_id,session_target,session_count,session_weekdays,session_next_date,session_cycle,session_payment_timing) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20,$21,$22,$23) RETURNING id,name,amount,currency,category,frequency,interval_days,due_date,end_date,due_day,reminder_enabled,notes,status,paused_at,payment_status,paid_at,remind_at,payment_method_id,payment_method_name,payment_card_last4,subscription_id,session_target,session_count,session_weekdays,session_next_date,session_cycle,session_payment_timing",[req.user.id,req.user.email||null,String(b.name).trim(),b.amount===""||b.amount==null?null:Number(b.amount),b.currency||"USD",b.category||null,b.frequency,b.frequency==="custom"?interval:null,b.due_date,b.end_date||null,b.due_day?Number(b.due_day):null,b.reminder_enabled!==false,b.notes||null,b.payment_method_id||null,b.payment_method_name||null,b.payment_card_last4?String(b.payment_card_last4).replace(/\D/g,"").slice(-4):null,b.subscription_id||null,b.frequency==="session_based"?Math.max(1,Math.min(3650,Number(b.session_target)||1)):null,b.frequency==="session_based"?0:null,b.frequency==="session_based"?String(b.session_weekdays||""):null,b.frequency==="session_based"?(b.session_next_date||b.due_date):null,b.frequency==="session_based"?1:null,b.frequency==="session_based"?(b.session_payment_timing==="first_session"?"first_session":"last_session"):null]);
+ const bill=rows[0];
+ if(bill.reminder_enabled&&bill.frequency!=="one_time"&&bill.frequency!=="session_based"){const when=reminderAt(bill.due_date);if(when>new Date()&&(!bill.end_date||bill.due_date<=bill.end_date)){const task=await scheduler.at(when,"/api/reminders/send",{payload:{billId:bill.id},name:"bill-reminder-"+bill.id});await db.query("UPDATE bills SET reminder_task_id=$1 WHERE id=$2",[task.id,bill.id]);}}
+ res.status(201).json({bill});
+}
