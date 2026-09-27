@@ -6,6 +6,7 @@
   let instance=null;
   let observer=null;
   let initialized=false;
+  let initializationPromise=null;
   let verificationShown=false;
 
   function isRegistered(id){
@@ -34,12 +35,13 @@
       window.OneSignalDeferred.push(async OneSignal=>{
         try{
           if(!initialized){
-            await OneSignal.init({
+            if(!initializationPromise)initializationPromise=OneSignal.init({
               appId,
               serviceWorkerPath:'OneSignalSDKWorker.js',
               serviceWorkerParam:{scope:'/'},
               allowLocalhostAsSecureOrigin:false
             });
+            await initializationPromise;
             initialized=true;
           }
           instance=OneSignal;
@@ -81,9 +83,21 @@
     if(instance&&externalId)await instance.login(String(externalId));
   }
 
+  async function optIn(){
+    if(!instance)throw new Error('OneSignal is not initialized.');
+    return instance.User.PushSubscription.optIn();
+  }
+
+  async function optOut(){
+    if(!instance)throw new Error('OneSignal is not initialized.');
+    return instance.User.PushSubscription.optOut();
+  }
+
   window.myOneSignal={
     init,
     requestPermission,
+    optIn,
+    optOut,
     getState,
     login,
     isRegistered
