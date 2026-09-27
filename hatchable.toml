@@ -32,4 +32,4 @@ expose = true
 
 [[secret]]
 name = "ONESIGNAL_API_KEY"
-expose = false
+expose = true
