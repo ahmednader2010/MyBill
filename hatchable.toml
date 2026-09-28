@@ -28,8 +28,8 @@ write = "own"
 
 [[secret]]
 name = "ONESIGNAL_APP_ID"
-expose = true
+expose = false
 
 [[secret]]
 name = "ONESIGNAL_API_KEY"
-expose = true
+expose = false
