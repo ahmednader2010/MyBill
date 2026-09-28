@@ -93,11 +93,16 @@
     return instance.User.PushSubscription.optOut();
   }
 
+  async function logout(){
+    if(instance&&typeof instance.logout==='function')await instance.logout();
+  }
+
   window.myOneSignal={
     init,
     requestPermission,
     optIn,
     optOut,
+    logout,
     getState,
     login,
     isRegistered
