@@ -1,2 +1,3 @@
+import {config} from "hatchable";
 export const access="user";export const methods=["GET"];
-const PUBLIC_ONESIGNAL_APP_ID="66d428ca-8012-4055-b30e-317cf4a1c278";export default async function(req,res){res.json({appId:process.env.ONESIGNAL_APP_ID||PUBLIC_ONESIGNAL_APP_ID});}
+export default async function(req,res){const appId=await config.get("ONESIGNAL_APP_ID");if(!appId)return res.status(503).json({error:"OneSignal App ID is not configured."});res.json({appId});}
