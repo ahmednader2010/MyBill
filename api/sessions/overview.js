@@ -17,12 +17,25 @@ export default async function(req,res){
  const logged=(await db.query("SELECT id,session_date,status,note,cycle,created_at FROM bill_sessions WHERE bill_id=$1 AND user_id=$2 ORDER BY session_date DESC,created_at DESC",[id,req.user.id])).rows;
  const byDate=new Map();
  for(const s of logged){if(!byDate.has(s.session_date))byDate.set(s.session_date,s);}
- const completed=Number(bill.session_count||0),target=Number(bill.session_target||0),remaining=Math.max(0,target-completed);
- const items=[]; let planned=0; const todayKey=today();
- for(let d=start,guard=0;guard<4000&&(planned<remaining||d<=todayKey);d=addDays(d,1),guard++){
+ const completed=Number(bill.session_count||0);
+ const target=Number(bill.session_target||0);
+ const remaining=Math.max(0,target-completed);
+ const items=[];
+ let planned=0,futureSlots=0;
+ const todayKey=today();
+ // A postponed future session still belongs to this package, so it needs another configured slot later.
+ const postponedFuture=logged.filter(x=>x.status==="postponed"&&x.session_date>=todayKey).length;
+ const futureSlotsNeeded=remaining+postponedFuture;
+ for(let d=start,guard=0;guard<4000 && (futureSlots<futureSlotsNeeded || d<=todayKey);d=addDays(d,1),guard++){
    if(!weekdays.has(dayOfWeek(d)))continue;
-   const s=byDate.get(d); let status=s?.status||"planned"; if(!s&&d<todayKey)status="missed";
-   if(status==="planned"&&d>=todayKey&&planned<remaining)planned++; else if(status==="planned"&&d>=todayKey)continue;
+   const s=byDate.get(d);
+   let status=s?.status||"planned";
+   if(!s&&d<todayKey)status="missed";
+   if(d>=todayKey){
+     futureSlots++;
+     if(status==="planned" && planned<remaining)planned++;
+     else if(status==="planned")continue;
+   }
    items.push({date:d,status,note:s?.note||null,session_id:s?.id||null,cycle:s?.cycle||Number(bill.session_cycle)||1});
  }
  res.json({bill,summary:{completed,target,remaining,missed:items.filter(x=>x.status==="missed").length,planned:items.filter(x=>x.status==="planned").length},items,history:logged});
