@@ -7,6 +7,9 @@ export default async function(req,res){
  if(!b.id||!b.bill_id)return res.status(400).json({error:"Session id and bill id are required."});
  const bill=(await db.query("SELECT id,session_cycle FROM bills WHERE id=$1 AND user_id=$2 AND frequency='session_based'",[b.bill_id,req.user.id])).rows[0];
  if(!bill)return res.status(404).json({error:"Session-based bill not found."});
+ const existing=(await db.query("SELECT id,cycle,status FROM bill_sessions WHERE id=$1 AND bill_id=$2 AND user_id=$3",[b.id,b.bill_id,req.user.id])).rows[0];
+ if(!existing)return res.status(404).json({error:"Session entry not found."});
+ if(b.cycle!=null && Number(b.cycle)!==Math.max(1,Number(existing.cycle)||1))return res.status(409).json({error:"This session belongs to a different payment period. Refresh the tracker and try again."});
  const deleted=(await db.query("DELETE FROM bill_sessions WHERE id=$1 AND bill_id=$2 AND user_id=$3 RETURNING id,cycle,status",[b.id,b.bill_id,req.user.id])).rows[0];
  if(!deleted)return res.status(404).json({error:"Session entry not found."});
  const currentCycle=Math.max(1,Number(bill.session_cycle)||1);
