@@ -13,28 +13,34 @@ export default async function(req,res){
  const timing=bill.session_payment_timing==="first_session"?"first_session":"last_session";
  const existing=(await db.query("SELECT id,status,cycle FROM bill_sessions WHERE id=$1 AND bill_id=$2 AND user_id=$3",[b.id||"00000000-0000-0000-0000-000000000000",b.bill_id,req.user.id])).rows[0];
 
+ if(existing){
+   const conflict=(await db.query("SELECT id FROM bill_sessions WHERE bill_id=$1 AND user_id=$2 AND session_date=$3 AND id<>$4",[b.bill_id,req.user.id,b.session_date,existing.id])).rows[0];
+   if(conflict)return res.status(409).json({error:"Another session is already recorded on that date. Choose a different date."});
+   const session=(await db.query("UPDATE bill_sessions SET session_date=$1,note=$2,updated_at=NOW() WHERE id=$3 AND bill_id=$4 AND user_id=$5 RETURNING *",[b.session_date,b.note||null,existing.id,b.bill_id,req.user.id])).rows[0];
+   cycle=Math.max(1,Number(existing.cycle)||cycle);
+   const count=(await db.query("SELECT COUNT(*)::int AS count FROM bill_sessions WHERE bill_id=$1 AND user_id=$2 AND cycle=$3 AND status='completed'",[b.bill_id,req.user.id,cycle])).rows[0].count;
+   // Editing a historical or current entry must not trigger package payment a second time.
+   if(cycle===Math.max(1,Number(bill.session_cycle)||1)){
+     await db.query("UPDATE bills SET session_count=$1,updated_at=NOW() WHERE id=$2 AND user_id=$3",[count,b.bill_id,req.user.id]);
+   }
+   const updated=(await db.query("SELECT id,name,amount,currency,frequency,session_target,session_count,session_weekdays,session_next_date,payment_status,paid_at,session_cycle,session_payment_timing,due_date FROM bills WHERE id=$1 AND user_id=$2",[b.bill_id,req.user.id])).rows[0];
+   return res.json({session,bill:updated,edited:true,payment_timing:timing});
+ }
+
  // For advance payment, once the previous package is complete, the next new session starts a new cycle and triggers the next advance payment.
- if(!existing && timing==="first_session" && bill.payment_status==="paid" && currentCount>=target){
+ if(timing==="first_session" && bill.payment_status==="paid" && currentCount>=target){
    cycle+=1;
    currentCount=0;
    await db.query("UPDATE bills SET session_cycle=$1,session_count=0,payment_status='unpaid',paid_at=NULL,updated_at=NOW() WHERE id=$2 AND user_id=$3",[cycle,b.bill_id,req.user.id]);
    bill.payment_status="unpaid";
  }
 
- let session;
- if(existing){
-   session=(await db.query("UPDATE bill_sessions SET session_date=$1,status=$2,note=$3,updated_at=NOW() WHERE id=$4 AND bill_id=$5 AND user_id=$6 RETURNING *",[b.session_date,b.status,b.note||null,existing.id,b.bill_id,req.user.id])).rows[0];
-   cycle=existing.cycle||cycle;
- }else{
-   session=(await db.query("INSERT INTO bill_sessions (user_id,bill_id,session_date,status,note,cycle) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",[req.user.id,b.bill_id,b.session_date,b.status,b.note||null,cycle])).rows[0];
- }
-
+ const session=(await db.query("INSERT INTO bill_sessions (user_id,bill_id,session_date,status,note,cycle) VALUES ($1,$2,$3,$4,$5,$6) RETURNING *",[req.user.id,b.bill_id,b.session_date,b.status,b.note||null,cycle])).rows[0];
  const count=(await db.query("SELECT COUNT(*)::int AS count FROM bill_sessions WHERE bill_id=$1 AND user_id=$2 AND cycle=$3 AND status='completed'",[b.bill_id,req.user.id,cycle])).rows[0].count;
  let paymentStatus=bill.payment_status||"unpaid";
  let nextCycle=cycle;
  let finalCount=count;
  let paidNow=false;
-
  if(b.status==="completed"){
    if(timing==="first_session" && count>=1 && paymentStatus!=="paid"){
      paymentStatus="paid"; paidNow=true;
@@ -44,9 +50,7 @@ export default async function(req,res){
      finalCount=0;
    }
  }
-
  await db.query("UPDATE bills SET session_count=$1,payment_status=$2,paid_at=CASE WHEN $3 THEN NOW() ELSE paid_at END,session_cycle=$4,updated_at=NOW() WHERE id=$5 AND user_id=$6",[finalCount,paymentStatus,paidNow,nextCycle,b.bill_id,req.user.id]);
-
  const updated=(await db.query("SELECT id,name,amount,currency,frequency,session_target,session_count,session_weekdays,session_next_date,payment_status,paid_at,session_cycle,session_payment_timing,due_date FROM bills WHERE id=$1 AND user_id=$2",[b.bill_id,req.user.id])).rows[0];
  res.json({session,bill:updated,paid_now:paidNow,payment_timing:timing});
 }
