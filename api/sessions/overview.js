@@ -1,10 +1,9 @@
 import {db} from "hatchable";
 export const access="user"; export const methods=["GET"];
 
-const validDate=s=>/^\d{4}-\d{2}-\d{2}$/.test(String(s||""));
 const addDays=(s,n)=>{const[y,m,d]=s.split("-").map(Number),x=new Date(Date.UTC(y,m-1,d+n));return x.toISOString().slice(0,10)};
 const dayOfWeek=s=>{const[y,m,d]=s.split("-").map(Number);return new Date(Date.UTC(y,m-1,d)).getUTCDay()};
-const today=()=>{const d=new Date();return d.toISOString().slice(0,10)};
+const today=()=>new Date().toISOString().slice(0,10);
 
 export default async function(req,res){
  const id=req.query?.bill_id;
@@ -23,7 +22,6 @@ export default async function(req,res){
  const items=[];
  let planned=0,futureSlots=0;
  const todayKey=today();
- // A postponed future session still belongs to this package, so it needs another configured slot later.
  const postponedFuture=logged.filter(x=>x.status==="postponed"&&x.session_date>=todayKey).length;
  const futureSlotsNeeded=remaining+postponedFuture;
  for(let d=start,guard=0;guard<4000 && (futureSlots<futureSlotsNeeded || d<=todayKey);d=addDays(d,1),guard++){
@@ -36,7 +34,16 @@ export default async function(req,res){
      if(status==="planned" && planned<remaining)planned++;
      else if(status==="planned")continue;
    }
-   items.push({date:d,status,note:s?.note||null,session_id:s?.id||null,cycle:s?.cycle||Number(bill.session_cycle)||1});
+   items.push({date:d,status,note:s?.note||null,session_id:s?.id||null,cycle:s?.cycle||Number(bill.session_cycle)||1,is_scheduled:true});
  }
+ // Keep actual sessions logged on non-configured weekdays visible as actual events.
+ // They count as completed, but do not change the recurring weekday schedule.
+ const scheduledDates=new Set(items.map(x=>x.date));
+ for(const s of logged){
+   if(!scheduledDates.has(s.session_date)){
+     items.push({date:s.session_date,status:s.status,note:s.note||null,session_id:s.id,cycle:s.cycle||Number(bill.session_cycle)||1,is_scheduled:false});
+   }
+ }
+ items.sort((a,b)=>a.date.localeCompare(b.date));
  res.json({bill,summary:{completed,target,remaining,missed:items.filter(x=>x.status==="missed").length,planned:items.filter(x=>x.status==="planned").length},items,history:logged});
 }
