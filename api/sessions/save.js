@@ -14,6 +14,7 @@ export default async function(req,res){
  const existing=(await db.query("SELECT id,status,cycle FROM bill_sessions WHERE id=$1 AND bill_id=$2 AND user_id=$3",[b.id||"00000000-0000-0000-0000-000000000000",b.bill_id,req.user.id])).rows[0];
 
  if(existing){
+   if(b.cycle!=null && Number(b.cycle)!==Math.max(1,Number(existing.cycle)||1))return res.status(409).json({error:"This session belongs to a different payment period. Refresh the tracker and try again."});
    const conflict=(await db.query("SELECT id FROM bill_sessions WHERE bill_id=$1 AND user_id=$2 AND session_date=$3 AND id<>$4",[b.bill_id,req.user.id,b.session_date,existing.id])).rows[0];
    if(conflict)return res.status(409).json({error:"Another session is already recorded on that date. Choose a different date."});
    const session=(await db.query("UPDATE bill_sessions SET session_date=$1,note=$2,updated_at=NOW() WHERE id=$3 AND bill_id=$4 AND user_id=$5 RETURNING *",[b.session_date,b.note||null,existing.id,b.bill_id,req.user.id])).rows[0];
